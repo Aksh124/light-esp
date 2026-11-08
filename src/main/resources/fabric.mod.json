@@ -1,0 +1,29 @@
+{
+	"schemaVersion": 1,
+	"id": "lightesp",
+	"version": "${version}",
+	"name": "Light ESP",
+	"description": "Shows players, mobs and storage blocks through walls, each switched on and off on its own.",
+	"authors": ["Akshay"],
+	"license": "MIT",
+	"environment": "client",
+	"entrypoints": {
+		"client": ["lightesp.LightEspClient"],
+		"modmenu": ["lightesp.ModMenuIntegration"]
+	},
+	"mixins": [
+		{
+			"config": "lightesp.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.20.0",
+		"minecraft": "~26.2",
+		"java": ">=25",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"modmenu": "*"
+	}
+}

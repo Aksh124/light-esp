@@ -1,0 +1,10 @@
+{
+	"schemaVersion": 1,
+	"id": "lightesp-gametest",
+	"version": "1.0.0",
+	"name": "Light ESP game test",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-client-gametest": ["lightesp.test.LightEspGameTest"]
+	}
+}
