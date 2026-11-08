@@ -22,11 +22,13 @@ public final class EspScreen extends Screen {
 	@Override
 	protected void init() {
 		int x = width / 2 - 100;
-		int y = height / 2 - 44;
+		int y = height / 2 - 68;
 		String[] tips = {
 			"Red outline on other players, through walls.",
 			"Orange outline on hostile mobs and green on the rest, through walls.",
 			"Boxes on chests, ender chests, shulker boxes, barrels, spawners, hoppers, droppers, dispensers, crafters and furnaces.",
+			"Outline on thrown ender pearls, through walls, so you can see where someone pearled.",
+			"A box around each lit nether portal, through walls.",
 		};
 		for (LightEspClient.Kind kind : LightEspClient.Kind.values()) {
 			CycleButton<Boolean> button = addRenderableWidget(CycleButton.onOffBuilder(kind.on())
@@ -41,7 +43,7 @@ public final class EspScreen extends Screen {
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		super.extractRenderState(graphics, mouseX, mouseY, partialTick);
-		graphics.centeredText(font, title, width / 2, height / 2 - 66, 0xFFFFFFFF);
+		graphics.centeredText(font, title, width / 2, height / 2 - 90, 0xFFFFFFFF);
 	}
 
 	@Override

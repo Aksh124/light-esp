@@ -19,7 +19,7 @@ import net.minecraft.resources.Identifier;
 
 public final class LightEspClient implements ClientModInitializer {
 	public enum Kind {
-		PLAYERS("Players"), MOBS("Mobs"), BLOCKS("Storage blocks");
+		PLAYERS("Players"), MOBS("Mobs"), BLOCKS("Storage blocks"), PEARLS("Ender pearls"), PORTALS("Nether portals");
 
 		final String label;
 
@@ -32,6 +32,8 @@ public final class LightEspClient implements ClientModInitializer {
 				case PLAYERS -> Esp.players;
 				case MOBS -> Esp.mobs;
 				case BLOCKS -> Esp.blocks;
+				case PEARLS -> Esp.pearls;
+				case PORTALS -> Esp.portals;
 			};
 		}
 
@@ -40,6 +42,8 @@ public final class LightEspClient implements ClientModInitializer {
 				case PLAYERS -> Esp.players = on;
 				case MOBS -> Esp.mobs = on;
 				case BLOCKS -> Esp.blocks = on;
+				case PEARLS -> Esp.pearls = on;
+				case PORTALS -> Esp.portals = on;
 			}
 			Esp.save();
 		}
@@ -49,6 +53,8 @@ public final class LightEspClient implements ClientModInitializer {
 	private static final KeyMapping TOGGLE_PLAYERS = key("players");
 	private static final KeyMapping TOGGLE_MOBS = key("mobs");
 	private static final KeyMapping TOGGLE_BLOCKS = key("blocks");
+	private static final KeyMapping TOGGLE_PEARLS = key("pearls");
+	private static final KeyMapping TOGGLE_PORTALS = key("portals");
 	private static final KeyMapping OPEN_MENU = key("menu");
 	private static boolean openMenuNextTick;
 
@@ -59,7 +65,7 @@ public final class LightEspClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		Esp.load();
-		for (KeyMapping key : new KeyMapping[] {TOGGLE_PLAYERS, TOGGLE_MOBS, TOGGLE_BLOCKS, OPEN_MENU}) {
+		for (KeyMapping key : new KeyMapping[] {TOGGLE_PLAYERS, TOGGLE_MOBS, TOGGLE_BLOCKS, TOGGLE_PEARLS, TOGGLE_PORTALS, OPEN_MENU}) {
 			KeyMappingHelper.registerKeyMapping(key);
 		}
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, context) -> registerCommands(dispatcher));
@@ -72,6 +78,12 @@ public final class LightEspClient implements ClientModInitializer {
 			}
 			while (TOGGLE_BLOCKS.consumeClick()) {
 				toggle(Kind.BLOCKS);
+			}
+			while (TOGGLE_PEARLS.consumeClick()) {
+				toggle(Kind.PEARLS);
+			}
+			while (TOGGLE_PORTALS.consumeClick()) {
+				toggle(Kind.PORTALS);
 			}
 			while (OPEN_MENU.consumeClick()) {
 				openMenuNextTick = true;
@@ -139,10 +151,10 @@ public final class LightEspClient implements ClientModInitializer {
 		for (Kind kind : Kind.values()) {
 			text.append(kind.label + " ").append(kind.on() ? Component.literal("on").withStyle(ChatFormatting.GREEN)
 				: Component.literal("off").withStyle(ChatFormatting.RED));
-			if (kind != Kind.BLOCKS) {
+			if (kind != Kind.values()[Kind.values().length - 1]) {
 				text.append(", ");
 			}
 		}
-		return text.append(". /esp <players|mobs|blocks> to switch one, /esp menu for the screen.");
+		return text.append(". /esp <players|mobs|blocks|pearls|portals> to switch one, /esp menu for the screen.");
 	}
 }

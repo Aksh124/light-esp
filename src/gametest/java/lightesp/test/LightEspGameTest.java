@@ -17,6 +17,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.monster.zombie.Husk;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEnderpearl;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
 
 /**
  * A stone wall with a husk, a cow, a stand-in player and storage blocks behind it, switched on
@@ -27,6 +30,7 @@ public class LightEspGameTest implements FabricClientGameTest {
 
 	@Override
 	public void runTest(ClientGameTestContext context) {
+		context.runOnClient(mc -> mc.options.getSoundSourceOptionInstance(net.minecraft.sounds.SoundSource.MASTER).set(0.0));
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			world.getConnection().waitForChunksRender();
 			for (String command : new String[] {
@@ -103,6 +107,28 @@ public class LightEspGameTest implements FabricClientGameTest {
 			}), "switches not saved");
 			context.runOnClient(mc -> mc.gui.screen().onClose());
 			log("screen switched mobs off and saved it");
+
+			// An ender pearl hanging behind the wall: outlined only with pearls on.
+			world.getServer().runCommand("summon ender_pearl -4 102 6 {NoGravity:1b}");
+			ThrownEnderpearl pearl = find(context, ThrownEnderpearl.class);
+			check(context.computeOnClient(mc -> !mc.shouldEntityAppearGlowing(pearl)), "pearl outlined with pearl ESP off");
+			command(context, "esp pearls");
+			check(context.computeOnClient(mc -> mc.shouldEntityAppearGlowing(pearl) && pearl.getTeamColor() == Esp.PEARL), "pearl outline wrong");
+			log("pearls: thrown ender pearl outlined in its own colour");
+
+			// A real lit nether portal behind the wall: one box around its 2x3 inside.
+			world.getServer().runCommand("fill -7 100 9 -4 104 9 obsidian");
+			world.getServer().runCommand("fill -6 101 9 -5 103 9 air");
+			world.getServer().runCommand("setblock -6 101 9 fire");
+			context.waitTicks(5);
+			check(context.computeOnClient(mc -> mc.level.getBlockState(new BlockPos(-6, 101, 9)).is(Blocks.NETHER_PORTAL)), "portal didn't light");
+			check(context.computeOnClient(mc -> Esp.boxes().stream().noneMatch(box -> box.color() == Esp.PORTAL)), "portal boxed with portal ESP off");
+			command(context, "esp portals");
+			context.waitTicks(15);
+			List<AABB> portals = context.computeOnClient(mc -> Esp.boxes().stream().filter(box -> box.color() == Esp.PORTAL).map(Esp.Box::box).toList());
+			check(portals.equals(List.of(new AABB(-6, 101, 9, -4, 104, 10))), "portal boxes: " + portals);
+			log("portals: one box around the lit portal, " + portals.getFirst());
+			context.takeScreenshot("lightesp-pearl-portal");
 
 			// All off.
 			command(context, "esp off");
